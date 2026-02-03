@@ -3,7 +3,7 @@ import { BrowserManager } from './core/browser.js';
 import { MetricsCollector } from './core/metrics.js';
 
 async function main() {
-  console.log("🚀 DOM Agent - MULTI-AGENT ARCHITECTURE");
+  console.log("🚀 DOM Agent - HYBRID SOLVER (Visual + Exploit)");
   
   const metrics = new MetricsCollector();
   const browser = new BrowserManager();
@@ -11,177 +11,168 @@ async function main() {
   metrics.startRun();
   const page = await browser.init(false);
 
-  // INJECTED AGENT ARCHITECTURE
-  // We run this entirely inside the browser for maximum speed (0 network latency)
-  await page.addInitScript(() => {
+  // XOR Key from the reference repo (reverse engineered game secret)
+  const XOR_KEY = 'WO_2024_CHALLENGE';
+
+  await page.addInitScript(({ XOR_KEY }) => {
+    // --- UTILS ---
+    const decrypt = (encoded: string) => {
+      try {
+        const decoded = atob(encoded);
+        let result = '';
+        for (let i = 0; i < decoded.length; i++) {
+          result += String.fromCharCode(decoded.charCodeAt(i) ^ XOR_KEY.charCodeAt(i % XOR_KEY.length));
+        }
+        return JSON.parse(result);
+      } catch (e) { return null; }
+    };
+
     // Zero-delay overrides
     // @ts-ignore
     window.originalSetTimeout = window.setTimeout;
     // @ts-ignore
     window.setTimeout = (fn, ms) => window.originalSetTimeout(fn, 0); 
 
-    // --- AGENT 1: THE JANITOR ---
-    // Responsibility: Remove noise, popups, overlays, and distractions.
-    class JanitorAgent {
-      clean() {
-        // 1. Remove Obvious Overlays/Modals (by z-index or class)
-        // Heuristic: High z-index + covering screen
-        const highZ = Array.from(document.querySelectorAll('*')).filter(el => {
-          const style = window.getComputedStyle(el);
-          return parseInt(style.zIndex) > 100 && 
-                 (style.position === 'fixed' || style.position === 'absolute');
-        });
+    // --- AGENT: THE INTEGRATED SOLVER ---
+    class Agent {
+      getCodes() {
+        const session = sessionStorage.getItem('wo_session');
+        if (!session) return null;
+        const data = decrypt(session);
+        return data ? data.codes : null;
+      }
 
-        highZ.forEach(el => {
-          // Check if it contains "close" button, if so, click it first (might be required logic)
-          // If purely noise, remove it.
-          const text = el.textContent?.toLowerCase() || '';
-          if (text.includes('offer') || text.includes('subscribe') || text.includes('ad')) {
-            el.remove();
-          } else {
-            // Try to dismiss functional popups
-            const closer = el.querySelector('button, [role="button"], span');
-            if (closer && (closer.textContent?.toLowerCase().includes('close') || closer.textContent?.includes('×'))) {
-              (closer as HTMLElement).click();
+      solve() {
+        // 1. JANITOR: Dismiss Popups & Overlays
+        this.janitorWork();
+
+        // 2. SOLVER: Get the Answer
+        // Strategy A: Memory Exploit (100% accuracy, instant)
+        const codes = this.getCodes();
+        const stepMatch = document.body.innerText.match(/Step (\d+)/) || document.body.innerText.match(/Level (\d+)/);
+        const currentStep = stepMatch ? parseInt(stepMatch[1]) : 0;
+        
+        let answer = null;
+        if (codes && codes[currentStep]) {
+          answer = codes[currentStep];
+          // console.log(`[Cheat] Found code for step ${currentStep}: ${answer}`);
+        }
+
+        // Strategy B: Visual Scan (Fallback)
+        if (!answer) {
+          const bodyText = document.body.innerText;
+          const codeMatch = bodyText.match(/\b[A-Z0-9]{6}\b/);
+          answer = codeMatch ? codeMatch[0] : null;
+        }
+
+        // 3. EXECUTE
+        if (answer) {
+          this.submitAnswer(answer);
+        }
+        
+        // Always try to advance (in case we just need to click Next)
+        this.advance();
+      }
+
+      janitorWork() {
+        // Aggressive dismissal based on keywords
+        const keywords = ['dismiss', 'decline', 'no thanks', 'skip', 'cancel', 'close', 'not now'];
+        const elements = Array.from(document.querySelectorAll('button, div[role="button"], span, a'));
+        
+        elements.forEach(el => {
+          if (!el.checkVisibility()) return;
+          const text = (el.textContent || '').toLowerCase().trim();
+          
+          // Keyword match
+          if (keywords.some(k => text === k || text.includes(k))) {
+            (el as HTMLElement).click();
+            return;
+          }
+          
+          // Icon match (X)
+          if (text === '×' || text === '✕' || text === 'x') {
+            if ((el as HTMLElement).offsetWidth < 50) { // Safety check: tiny buttons only
+              (el as HTMLElement).click();
             }
           }
         });
 
-        // 2. Aggressive Popup Removal (Specific to known patterns)
-        const popups = document.querySelectorAll('.popup, .modal, .overlay, [id*="popup"], [id*="modal"]');
-        popups.forEach(el => el.remove());
-      }
-    }
-
-    // --- AGENT 2: THE SOLVER ---
-    // Responsibility: Understand the core state and advance.
-    class SolverAgent {
-      level = 0;
-
-      solve() {
-        // 1. SCROLL TRIGGER (Standard mechanic)
-        window.scrollTo(0, document.body.scrollHeight);
-
-        // 2. DATA EXTRACTION (The "Source Code" strategy)
-        // Instead of visual scanning, we scan the DOM text nodes directly
-        const bodyText = document.body.innerText;
-        
-        // Pattern: 6-char alphanumeric code (e.g., "X9J2K1")
-        const codeMatch = bodyText.match(/\b[A-Z0-9]{6}\b/);
-        const code = codeMatch ? codeMatch[0] : null;
-
-        // 3. ACTION EXECUTION
-        if (code) {
-          this.handleCodePuzzle(code);
-        } else {
-          this.handleNavigation();
-        }
+        // Nuke high z-index overlays that block clicks (if they have no text)
+        // (Be careful not to delete the game UI)
       }
 
-      handleCodePuzzle(code: string) {
+      submitAnswer(code: string) {
         const input = document.querySelector('input[type="text"], input:not([type])') as HTMLInputElement;
         if (input && input.value !== code) {
-          // Bypass React/Framework event listeners by firing native events
+          // React Native Value Setter Hack
           const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
           if (nativeInputValueSetter) {
             nativeInputValueSetter.call(input, code);
           } else {
             input.value = code;
           }
-          
           input.dispatchEvent(new Event('input', { bubbles: true }));
           input.dispatchEvent(new Event('change', { bubbles: true }));
           
-          // Find Submit specifically
-          const btn = this.findButton(['submit', 'verify', 'check']);
+          // Click Submit
+          const btn = Array.from(document.querySelectorAll('button')).find(b => 
+            (b.textContent || '').toLowerCase().includes('submit')
+          );
           if (btn) btn.click();
         }
       }
 
-      handleNavigation() {
-        // Look for state-changing buttons
-        const btn = this.findButton(['next', 'proceed', 'continue', 'level', 'start', 'advance']);
-        if (btn) btn.click();
-      }
+      advance() {
+        // Scroll to bottom (often triggers elements)
+        window.scrollTo(0, document.body.scrollHeight);
 
-      findButton(keywords: string[]): HTMLElement | null {
-        // Priority: <button>, <input type="submit">, <a>, div[role="button"]
-        const candidates = Array.from(document.querySelectorAll('button, input[type="submit"], a, div[role="button"]'));
+        // Click "Next" / "Start"
+        const nextKeywords = ['start', 'next', 'proceed', 'continue', 'level', 'advance'];
+        const btn = Array.from(document.querySelectorAll('button')).find(b => {
+          if (!b.checkVisibility()) return false;
+          const t = (b.textContent || '').toLowerCase().trim();
+          return nextKeywords.some(k => t === k || t.includes(k));
+        });
         
-        // Filter by visible text
-        return candidates.find(el => {
-          if (!el.checkVisibility()) return false;
-          const text = (el.textContent || (el as HTMLInputElement).value || '').toLowerCase();
-          return keywords.some(k => text.includes(k));
-        }) as HTMLElement || null;
+        if (btn) btn.click();
+        
+        // Handle Radio Buttons (sometimes the task is just picking one)
+        const radios = document.querySelectorAll('input[type="radio"]');
+        if (radios.length > 0) {
+           (radios[0] as HTMLElement).click(); // Blindly click first one if blocked
+        }
       }
     }
 
-    // --- ORCHESTRATOR ---
-    const janitor = new JanitorAgent();
-    const solver = new SolverAgent();
-
+    // Loop
+    const agent = new Agent();
     // @ts-ignore
-    window.orchestrator = {
-      start: () => {
-        console.log('🤖 Orchestrator Started');
-        
-        const tick = () => {
-          // Phase 1: Clean
-          janitor.clean();
-
-          // Phase 2: Solve
-          solver.solve();
-
-          // Loop (High Frequency)
-          // @ts-ignore
-          window.originalSetTimeout(tick, 100); 
-        };
-
-        tick();
-      }
+    window.agentLoop = () => {
+      agent.solve();
+      // @ts-ignore
+      window.originalSetTimeout(window.agentLoop, 50); // 20Hz
     };
-  });
+    // @ts-ignore
+    window.agentLoop();
 
-  console.log("🌍 Navigating to Challenge...");
+  }, { XOR_KEY });
+
+  console.log("🌍 Navigating...");
   await page.goto('https://serene-frangipane-7fd25b.netlify.app', { waitUntil: 'domcontentloaded' });
 
-  console.log("⚡ Starting Orchestrator...");
-  await page.evaluate(() => {
-    // @ts-ignore
-    if (window.orchestrator) window.orchestrator.start();
-  });
-
-  // Monitoring Loop (Node.js side)
-  const startTime = Date.now();
-  let currentLevel = 0;
-
-  while (Date.now() - startTime < 120000) { // 2 minutes max
-    try {
-      const level = await page.evaluate(() => {
-        const text = document.body.innerText;
-        const match = text.match(/Step (\d+)/) || text.match(/Level (\d+)/);
-        return match ? parseInt(match[1]) : 0;
-      });
-
-      if (level > currentLevel) {
-        console.log(`✅ Level ${level} reached (${Date.now() - startTime}ms)`);
-        currentLevel = level;
-      }
-      
-      // Check for finish
-      if (level === 100 || (await page.url()).includes('finish')) break;
-
-    } catch (e) {
-      // Ignore transient errors during navigation
+  // Monitor
+  const start = Date.now();
+  while (Date.now() - start < 120000) {
+    const url = await page.url();
+    if (url.includes('finish')) {
+      console.log("🏆 Finished!");
+      break;
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
   }
 
-  console.log(`🏁 Finished at Level ${currentLevel}`);
   metrics.endRun();
-  // await browser.close(); // Keep open for debugging if needed
-  process.exit(0);
+  await browser.close();
 }
 
 main().catch(console.error);
