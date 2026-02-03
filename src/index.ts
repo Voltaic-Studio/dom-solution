@@ -4,7 +4,7 @@ import { MetricsCollector } from './core/metrics.js';
 import type { Page } from 'playwright';
 
 async function main() {
-  console.log("🚀 DOM Agent - ULTRA SPEED MODE");
+  console.log("🚀 DOM Agent - SMART SOLVER MODE");
   
   const metrics = new MetricsCollector();
   const browser = new BrowserManager();
@@ -12,80 +12,94 @@ async function main() {
   metrics.startRun();
   const page = await browser.init(false);
 
-  // 1. Inject High-Performance Solver Bundle
+  // Inject the Smart Solver Engine
   await page.addInitScript(() => {
-    // A. Time Warp (Kill all delays)
+    // Zero-delay overrides
     // @ts-ignore
     window.originalSetTimeout = window.setTimeout;
     // @ts-ignore
-    window.setTimeout = (fn, ms) => window.originalSetTimeout(fn, 0); // Force 0ms
+    window.setTimeout = (fn, ms) => window.originalSetTimeout(fn, 0); 
     
-    // @ts-ignore
-    window.originalRAF = window.requestAnimationFrame;
-    // @ts-ignore
-    window.requestAnimationFrame = (cb) => window.originalRAF(() => cb(performance.now() + 1000)); // Future time
-
-    // B. CSS Nuke (No layout shifts/anim)
-    const style = document.createElement('style');
-    style.innerHTML = `* { transition: none !important; animation: none !important; }`;
-    document.head.appendChild(style);
-
-    // C. The Solver Engine (Runs entirely in browser)
     // @ts-ignore
     window.solver = {
       active: true,
       level: 0,
-      history: [],
       
       start: function() {
-        console.log('Solver started');
+        console.log('Smart Solver started');
         this.loop();
       },
 
-      loop: function() {
+      loop: async function() {
         if (!this.active) return;
 
-        // 1. Identify "Next" / Actionable Elements
-        // Priority: Buttons, Inputs, Links
-        const candidates = Array.from(document.querySelectorAll('button, input[type="submit"], input[type="button"], a[href], div[role="button"]'))
+        // 1. POPUP DEFENSE
+        // Click anything that looks like a close button on top
+        const closers = Array.from(document.querySelectorAll('button, div[role="button"]'))
           .filter(el => {
-            const style = window.getComputedStyle(el);
-            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && !(el as any).disabled;
+            const text = (el.textContent || '').trim().toLowerCase();
+            return ['close', 'dismiss', 'x', 'no thanks', 'cancel'].includes(text) && 
+                   el.checkVisibility(); 
           });
-
-        // 2. Filter for "Forward" intent
-        // (If multiple buttons exist, pick the one that looks like "Next", "Submit", "Go")
-        const keywords = ['start', 'next', 'continue', 'submit', 'verify', 'check', 'go', 'solve', 'level'];
         
-        let target = candidates.find(el => {
-          const text = (el.textContent || (el as any).value || '').toLowerCase();
-          return keywords.some(k => text.includes(k));
-        });
+        for (const btn of closers) {
+          (btn as HTMLElement).click();
+        }
 
-        // Fallback: Just click the first visible button if no keyword match
-        if (!target && candidates.length > 0) target = candidates[0];
+        // 2. SCROLL TRIGGER
+        window.scrollTo(0, document.body.scrollHeight);
+        
+        // 3. CODE EXTRACTION
+        // Look for the secret code pattern (6 chars, uppercase alphanumeric)
+        // Usually near "Scroll to Reveal" or inside a specific container
+        const bodyText = document.body.innerText;
+        const codeMatch = bodyText.match(/\b[A-Z0-9]{6}\b/);
+        const code = codeMatch ? codeMatch[0] : null;
 
-        if (target) {
-          // 3. EXECUTE (Native Event Dispatch for speed)
-          // Some React apps need full event chain
-          ['mousedown', 'mouseup', 'click'].forEach(eventType => {
-            const evt = new MouseEvent(eventType, { bubbles: true, cancelable: true, view: window });
-            target!.dispatchEvent(evt);
-          });
+        // 4. INPUT HANDLING
+        const input = document.querySelector('input[type="text"], input:not([type])') as HTMLInputElement;
+        
+        if (input && code && input.value !== code) {
+          // Found input + code -> Solve it
+          input.value = code;
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
           
-          this.history.push({ level: this.level, action: 'click', target: target.tagName });
+          // Find the submit button specifically for this
+          const submitBtn = Array.from(document.querySelectorAll('button'))
+            .find(b => (b.textContent || '').toLowerCase().includes('submit'));
+            
+          if (submitBtn) {
+            submitBtn.click();
+            this.log(`Solved with code: ${code}`);
+            return this.nextTick();
+          }
         }
 
-        // 4. Cheat/Hack: Look for exposed level variable
-        // @ts-ignore
-        if (window.level && window.level > this.level) {
-           this.level = window.level;
-           console.log(`Level advanced to ${this.level}`);
+        // 5. GENERIC NAVIGATION (If no code puzzle)
+        const nextKeywords = ['next', 'proceed', 'continue', 'level', 'start', 'advance', 'go forward'];
+        const buttons = Array.from(document.querySelectorAll('button, a'))
+          .filter(el => {
+             const t = (el.textContent || '').toLowerCase();
+             return nextKeywords.some(k => t.includes(k)) && el.checkVisibility();
+          });
+
+        if (buttons.length > 0) {
+          // Prioritize "Next" over others
+          const best = buttons.find(b => b.textContent?.toLowerCase().trim() === 'next') || buttons[0];
+          (best as HTMLElement).click();
         }
 
-        // Loop immediately (microtask)
+        this.nextTick();
+      },
+
+      nextTick: function() {
         // @ts-ignore
-        window.originalSetTimeout(() => this.loop(), 0);
+        window.originalSetTimeout(() => this.loop(), 50); // 20 ticks/sec
+      },
+
+      log: function(msg: string) {
+        console.log(`[Solver] ${msg}`);
       }
     };
   });
@@ -93,21 +107,20 @@ async function main() {
   console.log("🌍 Navigating...");
   await page.goto('https://serene-frangipane-7fd25b.netlify.app', { waitUntil: 'domcontentloaded' });
 
-  // Start the internal engine
-  console.log("⚡ Injecting Solver...");
+  console.log("⚡ Injecting Logic...");
   await page.evaluate(() => {
     // @ts-ignore
     if (window.solver) window.solver.start();
   });
 
-  // Monitor progress from Node side
+  // Monitor Loop
   const startTime = Date.now();
   let currentLevel = 0;
 
-  while (Date.now() - startTime < 10000) { // 10s timeout
+  while (Date.now() - startTime < 60000) { // 60s timeout
     const level = await page.evaluate(() => {
-      // @ts-ignore
-      return window.level || parseInt(document.body.innerText.match(/Level (\d+)/)?.[1] || "0");
+      const match = document.body.innerText.match(/Step (\d+)/) || document.body.innerText.match(/Level (\d+)/);
+      return match ? parseInt(match[1]) : 0;
     });
 
     if (level > currentLevel) {
@@ -116,10 +129,10 @@ async function main() {
       if (level === 30) break;
     }
     
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   }
 
-  console.log(`🏁 Done. Reached Level ${currentLevel}`);
+  console.log(`🏁 Finished at Level ${currentLevel}`);
   metrics.endRun();
   await browser.close();
 }
