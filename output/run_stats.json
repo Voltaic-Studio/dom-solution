@@ -1,0 +1,160 @@
+{
+  "startTime": "2026-02-03T20:29:01.392Z",
+  "endTime": "2026-02-03T20:29:33.656Z",
+  "totalDurationSeconds": 32.26,
+  "stepsCompleted": 30,
+  "totalSteps": 30,
+  "success": true,
+  "stepDetails": [
+    {
+      "step": 1,
+      "code": "SP4N4Y",
+      "durationMs": 329
+    },
+    {
+      "step": 2,
+      "code": "9UJVGZ",
+      "durationMs": 321
+    },
+    {
+      "step": 3,
+      "code": "V3KSQW",
+      "durationMs": 319
+    },
+    {
+      "step": 4,
+      "code": "RYT5ZT",
+      "durationMs": 320
+    },
+    {
+      "step": 5,
+      "code": "YCCHGD",
+      "durationMs": 314
+    },
+    {
+      "step": 6,
+      "code": "9FYB6K",
+      "durationMs": 354
+    },
+    {
+      "step": 7,
+      "code": "T5DP9K",
+      "durationMs": 376
+    },
+    {
+      "step": 8,
+      "code": "FEYL85",
+      "durationMs": 332
+    },
+    {
+      "step": 9,
+      "code": "H3UGVD",
+      "durationMs": 313
+    },
+    {
+      "step": 10,
+      "code": "TSRJS3",
+      "durationMs": 325
+    },
+    {
+      "step": 11,
+      "code": "HTQY8R",
+      "durationMs": 324
+    },
+    {
+      "step": 12,
+      "code": "EE3MXW",
+      "durationMs": 327
+    },
+    {
+      "step": 13,
+      "code": "Q8BMHB",
+      "durationMs": 315
+    },
+    {
+      "step": 14,
+      "code": "V4ZM8C",
+      "durationMs": 320
+    },
+    {
+      "step": 15,
+      "code": "HLHJRH",
+      "durationMs": 318
+    },
+    {
+      "step": 16,
+      "code": "AB93KM",
+      "durationMs": 338
+    },
+    {
+      "step": 17,
+      "code": "JZY2WJ",
+      "durationMs": 322
+    },
+    {
+      "step": 18,
+      "code": "TYHNU2",
+      "durationMs": 312
+    },
+    {
+      "step": 19,
+      "code": "DWUMHJ",
+      "durationMs": 323
+    },
+    {
+      "step": 20,
+      "code": "5RF9P4",
+      "durationMs": 312
+    },
+    {
+      "step": 21,
+      "code": "529YBK",
+      "durationMs": 320
+    },
+    {
+      "step": 22,
+      "code": "GAQQTW",
+      "durationMs": 316
+    },
+    {
+      "step": 23,
+      "code": "G8P3Y9",
+      "durationMs": 317
+    },
+    {
+      "step": 24,
+      "code": "54CMMW",
+      "durationMs": 318
+    },
+    {
+      "step": 25,
+      "code": "YY9R54",
+      "durationMs": 317
+    },
+    {
+      "step": 26,
+      "code": "BD4N7H",
+      "durationMs": 316
+    },
+    {
+      "step": 27,
+      "code": "56R32D",
+      "durationMs": 320
+    },
+    {
+      "step": 28,
+      "code": "3BYF8G",
+      "durationMs": 315
+    },
+    {
+      "step": 29,
+      "code": "ZNKSF9",
+      "durationMs": 319
+    },
+    {
+      "step": 30,
+      "code": "N/A (bypass)",
+      "durationMs": 567
+    }
+  ]
+}

@@ -1,22 +1,14 @@
 {
   "name": "dom-solution",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "main": "dist/index.js",
+  "description": "Lightweight multi-agent solver for Browser Navigation Challenge - NO LLM required",
+  "main": "src/solver.js",
   "scripts": {
     "postinstall": "playwright install chromium",
-    "start": "node --import tsx src/index.ts",
-    "build": "tsc"
+    "start": "node src/solver.js"
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "^3.0.8",
-    "@google/generative-ai": "^0.24.1",
-    "dotenv": "^17.2.3",
     "playwright": "^1.58.1"
-  },
-  "devDependencies": {
-    "@types/node": "^25.2.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.9.3"
   }
 }
