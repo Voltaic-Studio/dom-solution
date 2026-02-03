@@ -30,12 +30,24 @@ This demonstrates **real agent capability**:
 
 ## Quick Start
 
-### 1. Test the Tool Directly
+### One-liner (Easiest)
 
 ```bash
-cd dom-solution
-pnpm install
-pnpm test-tool <URL>
+./run.sh
+```
+
+This installs dependencies and solves the default challenge URL. You can also pass a custom URL:
+
+```bash
+./run.sh https://your-challenge-url.com/
+```
+
+### Individual Commands
+
+```bash
+pnpm install                    # Install dependencies
+pnpm test-tool <URL>            # Test the solver with any URL
+pnpm mcp                        # Run as MCP server
 ```
 
 Example:
@@ -43,15 +55,7 @@ Example:
 pnpm test-tool https://serene-frangipane-7fd25b.netlify.app/
 ```
 
-This runs the solver and shows what an LLM agent would receive as the tool response.
-
-### 2. Run as MCP Server (for Claude Desktop)
-
-```bash
-pnpm mcp
-```
-
-### 3. Add to Claude Desktop
+### Add to Claude Desktop (MCP Server)
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 

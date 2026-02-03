@@ -2,20 +2,17 @@
 set -e
 cd "$(dirname "$0")"
 
-echo "🚀 Browser Challenge Solver - MCP Tool"
+echo "🚀 Browser Challenge Solver"
 echo ""
 
-if [ -z "$1" ]; then
-  echo "Usage: ./run.sh <URL>"
-  echo ""
-  echo "Example:"
-  echo "  ./run.sh https://example.com/challenge"
-  echo ""
-  echo "Other commands:"
-  echo "  pnpm test-tool <URL>  - Test the solver"
-  echo "  pnpm mcp              - Run as MCP server"
-  exit 1
-fi
+# Default to the challenge URL if none provided
+URL="${1:-https://serene-frangipane-7fd25b.netlify.app/}"
 
+echo "📦 Installing dependencies..."
 pnpm install
-pnpm test-tool "$1"
+
+echo ""
+echo "🎯 Solving: $URL"
+echo ""
+
+pnpm test-tool "$URL"
