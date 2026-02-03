@@ -2,13 +2,17 @@
   "name": "dom-solution",
   "version": "2.0.0",
   "type": "module",
-  "description": "Lightweight multi-agent solver for Browser Navigation Challenge - NO LLM required",
-  "main": "src/solver.js",
+  "description": "LLM-powered computer-use agent for Browser Navigation Challenge",
   "scripts": {
     "postinstall": "playwright install chromium",
-    "start": "node src/solver.js"
+    "start": "npx tsx src/solver.ts"
   },
   "dependencies": {
-    "playwright": "^1.58.1"
+    "playwright": "^1.58.1",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
   }
 }

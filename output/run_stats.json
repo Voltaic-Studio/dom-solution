@@ -1,160 +1,194 @@
 {
-  "startTime": "2026-02-03T20:29:01.392Z",
-  "endTime": "2026-02-03T20:29:33.656Z",
-  "totalDurationSeconds": 32.26,
+  "startTime": "2026-02-03T20:43:32.976Z",
+  "endTime": "2026-02-03T20:43:58.370Z",
+  "totalDurationSeconds": 25.39,
   "stepsCompleted": 30,
   "totalSteps": 30,
   "success": true,
   "stepDetails": [
     {
       "step": 1,
-      "code": "SP4N4Y",
-      "durationMs": 329
+      "code": "VKYWDP",
+      "method": "deterministic",
+      "durationMs": 651
     },
     {
       "step": 2,
-      "code": "9UJVGZ",
-      "durationMs": 321
+      "code": "UR8EEW",
+      "method": "deterministic",
+      "durationMs": 660
     },
     {
       "step": 3,
-      "code": "V3KSQW",
-      "durationMs": 319
+      "code": "KNAGR5",
+      "method": "deterministic",
+      "durationMs": 628
     },
     {
       "step": 4,
-      "code": "RYT5ZT",
-      "durationMs": 320
+      "code": "HTFKUV",
+      "method": "deterministic",
+      "durationMs": 736
     },
     {
       "step": 5,
-      "code": "YCCHGD",
-      "durationMs": 314
+      "code": "QH25EC",
+      "method": "deterministic",
+      "durationMs": 647
     },
     {
       "step": 6,
-      "code": "9FYB6K",
-      "durationMs": 354
+      "code": "WK9UFF",
+      "method": "deterministic",
+      "durationMs": 616
     },
     {
       "step": 7,
-      "code": "T5DP9K",
-      "durationMs": 376
+      "code": "NEQP4K",
+      "method": "deterministic",
+      "durationMs": 619
     },
     {
       "step": 8,
-      "code": "FEYL85",
-      "durationMs": 332
+      "code": "67FLPZ",
+      "method": "deterministic",
+      "durationMs": 751
     },
     {
       "step": 9,
-      "code": "H3UGVD",
-      "durationMs": 313
+      "code": "79BD6U",
+      "method": "deterministic",
+      "durationMs": 669
     },
     {
       "step": 10,
-      "code": "TSRJS3",
-      "durationMs": 325
+      "code": "CBXX6H",
+      "method": "deterministic",
+      "durationMs": 649
     },
     {
       "step": 11,
-      "code": "HTQY8R",
-      "durationMs": 324
+      "code": "XW4KWR",
+      "method": "deterministic",
+      "durationMs": 624
     },
     {
       "step": 12,
-      "code": "EE3MXW",
-      "durationMs": 327
+      "code": "7W4B2X",
+      "method": "deterministic",
+      "durationMs": 630
     },
     {
       "step": 13,
-      "code": "Q8BMHB",
-      "durationMs": 315
+      "code": "4W2W7K",
+      "method": "deterministic",
+      "durationMs": 639
     },
     {
       "step": 14,
-      "code": "V4ZM8C",
-      "durationMs": 320
+      "code": "586GEJ",
+      "method": "deterministic",
+      "durationMs": 658
     },
     {
       "step": 15,
-      "code": "HLHJRH",
-      "durationMs": 318
+      "code": "8WM9EP",
+      "method": "deterministic",
+      "durationMs": 633
     },
     {
       "step": 16,
-      "code": "AB93KM",
-      "durationMs": 338
+      "code": "DDCT78",
+      "method": "deterministic",
+      "durationMs": 628
     },
     {
       "step": 17,
-      "code": "JZY2WJ",
-      "durationMs": 322
+      "code": "HS4QA7",
+      "method": "deterministic",
+      "durationMs": 612
     },
     {
       "step": 18,
-      "code": "TYHNU2",
-      "durationMs": 312
+      "code": "EDW6FY",
+      "method": "deterministic",
+      "durationMs": 612
     },
     {
       "step": 19,
-      "code": "DWUMHJ",
-      "durationMs": 323
+      "code": "FRZEUG",
+      "method": "deterministic",
+      "durationMs": 622
     },
     {
       "step": 20,
-      "code": "5RF9P4",
-      "durationMs": 312
+      "code": "72MKR3",
+      "method": "deterministic",
+      "durationMs": 618
     },
     {
       "step": 21,
-      "code": "529YBK",
-      "durationMs": 320
+      "code": "T5BK7H",
+      "method": "deterministic",
+      "durationMs": 617
     },
     {
       "step": 22,
-      "code": "GAQQTW",
-      "durationMs": 316
+      "code": "QXEGLD",
+      "method": "deterministic",
+      "durationMs": 633
     },
     {
       "step": 23,
-      "code": "G8P3Y9",
-      "durationMs": 317
+      "code": "GTS3TL",
+      "method": "deterministic",
+      "durationMs": 622
     },
     {
       "step": 24,
-      "code": "54CMMW",
-      "durationMs": 318
+      "code": "4S76C9",
+      "method": "deterministic",
+      "durationMs": 624
     },
     {
       "step": 25,
-      "code": "YY9R54",
-      "durationMs": 317
+      "code": "LYGLWW",
+      "method": "deterministic",
+      "durationMs": 622
     },
     {
       "step": 26,
-      "code": "BD4N7H",
-      "durationMs": 316
+      "code": "NK9FWC",
+      "method": "deterministic",
+      "durationMs": 624
     },
     {
       "step": 27,
-      "code": "56R32D",
-      "durationMs": 320
+      "code": "A37AXS",
+      "method": "deterministic",
+      "durationMs": 622
     },
     {
       "step": 28,
-      "code": "3BYF8G",
-      "durationMs": 315
+      "code": "JJTK56",
+      "method": "deterministic",
+      "durationMs": 616
     },
     {
       "step": 29,
-      "code": "ZNKSF9",
-      "durationMs": 319
+      "code": "M74MMN",
+      "method": "deterministic",
+      "durationMs": 617
     },
     {
       "step": 30,
-      "code": "N/A (bypass)",
-      "durationMs": 567
+      "method": "bypass",
+      "durationMs": 573
     }
-  ]
+  ],
+  "metrics": {
+    "tokenUsage": 0,
+    "tokenCost": 0,
+    "apiCalls": 0
+  }
 }
