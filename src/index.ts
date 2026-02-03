@@ -1,225 +1,126 @@
+
 import { BrowserManager } from './core/browser.js';
 import { MetricsCollector } from './core/metrics.js';
 import type { Page } from 'playwright';
 
-async function setupSpeedHacks(page: Page): Promise<void> {
-  // Inject speed hacks BEFORE page loads
-  await page.addInitScript(() => {
-    // Speed up all timers 100x
-    const originalSetTimeout = window.setTimeout;
-    const originalSetInterval = window.setInterval;
-    
-    // @ts-ignore
-    window.setTimeout = (fn: Function, delay?: number, ...args: any[]) => {
-      return originalSetTimeout(fn, Math.min(delay || 0, 1), ...args);
-    };
-    
-    // @ts-ignore
-    window.setInterval = (fn: Function, delay?: number, ...args: any[]) => {
-      return originalSetInterval(fn, Math.min(delay || 0, 1), ...args);
-    };
-
-    // Kill all animations
-    const style = document.createElement('style');
-    style.textContent = `
-      *, *::before, *::after {
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Speed up requestAnimationFrame
-    const originalRAF = window.requestAnimationFrame;
-    window.requestAnimationFrame = (callback: FrameRequestCallback) => {
-      return originalRAF(() => {
-        callback(performance.now());
-      });
-    };
-  });
-}
-
-async function injectAnimationKiller(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const style = document.createElement('style');
-    style.id = 'speed-hack';
-    style.textContent = `
-      *, *::before, *::after {
-        animation: none !important;
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-        transition: none !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
-      }
-    `;
-    if (!document.getElementById('speed-hack')) {
-      document.head.appendChild(style);
-    }
-  });
-}
-
-async function getGameState(page: Page): Promise<any> {
-  // Try to extract any game state from window/global scope
-  return await page.evaluate(() => {
-    const win = window as any;
-    return {
-      // Look for common game state patterns
-      level: win.level || win.currentLevel || win.gameState?.level,
-      state: win.state || win.gameState,
-      app: win.app,
-      game: win.game,
-      // Get all global variables that might be game-related
-      globals: Object.keys(win).filter(k => 
-        !k.startsWith('webkit') && 
-        !k.startsWith('on') &&
-        typeof win[k] !== 'function'
-      ).slice(0, 20)
-    };
-  });
-}
-
-async function solveLevel(page: Page): Promise<boolean> {
-  // Direct DOM manipulation - find and trigger all interactive elements
-  return await page.evaluate(() => {
-    let clicked = false;
-    
-    // Find all clickable elements
-    const clickables = document.querySelectorAll(
-      'button, a, input[type="button"], input[type="submit"], [role="button"], [onclick], .btn, .button, [tabindex]'
-    );
-    
-    // Priority keywords
-    const priority = ['start', 'next', 'continue', 'ok', 'yes', 'submit', 'confirm', 'accept', 'close', 'done', 'go', 'click', 'play'];
-    
-    // Sort by priority
-    const sorted = Array.from(clickables).sort((a, b) => {
-      const aText = (a.textContent || '').toLowerCase();
-      const bText = (b.textContent || '').toLowerCase();
-      const aPriority = priority.findIndex(p => aText.includes(p));
-      const bPriority = priority.findIndex(p => bText.includes(p));
-      return (aPriority === -1 ? 999 : aPriority) - (bPriority === -1 ? 999 : bPriority);
-    });
-
-    // Click the best candidate
-    for (const el of sorted) {
-      const rect = el.getBoundingClientRect();
-      const isVisible = rect.width > 0 && rect.height > 0 && 
-        getComputedStyle(el).visibility !== 'hidden' &&
-        getComputedStyle(el).display !== 'none';
-      
-      if (isVisible) {
-        (el as HTMLElement).click();
-        // Also dispatch events directly
-        el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-        el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-        clicked = true;
-        break;
-      }
-    }
-
-    // If nothing found, try clicking any visible element
-    if (!clicked) {
-      const all = document.querySelectorAll('*');
-      for (const el of all) {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0 && (el as HTMLElement).onclick) {
-          (el as HTMLElement).click();
-          clicked = true;
-          break;
-        }
-      }
-    }
-
-    return clicked;
-  });
-}
-
-async function getCurrentLevel(page: Page): Promise<number> {
-  return await page.evaluate(() => {
-    const text = document.body.innerText;
-    // Try various patterns
-    const patterns = [
-      /level\s*[:\s]*(\d+)/i,
-      /(\d+)\s*\/\s*30/,
-      /stage\s*[:\s]*(\d+)/i,
-      /puzzle\s*[:\s]*(\d+)/i
-    ];
-    for (const p of patterns) {
-      const match = text.match(p);
-      if (match) return parseInt(match[1]);
-    }
-    return 0;
-  });
-}
-
 async function main() {
-  console.log("🚀 DOM Agent - TURBO MODE");
+  console.log("🚀 DOM Agent - ULTRA SPEED MODE");
   
   const metrics = new MetricsCollector();
   const browser = new BrowserManager();
   
   metrics.startRun();
-  
   const page = await browser.init(false);
-  
-  // Setup speed hacks BEFORE navigation
-  await setupSpeedHacks(page);
 
-  console.log("🌍 Loading challenge...");
-  await page.goto('https://serene-frangipane-7fd25b.netlify.app', { waitUntil: 'domcontentloaded' });
-  
-  // Inject animation killer
-  await injectAnimationKiller(page);
-
-  const startTime = Date.now();
-  let lastLevel = 0;
-  let iterations = 0;
-
-  console.log("⚡ SOLVING...\n");
-
-  // Tight loop - no waiting
-  while ((Date.now() - startTime) < 300000) { // 5 min max
-    iterations++;
+  // 1. Inject High-Performance Solver Bundle
+  await page.addInitScript(() => {
+    // A. Time Warp (Kill all delays)
+    // @ts-ignore
+    window.originalSetTimeout = window.setTimeout;
+    // @ts-ignore
+    window.setTimeout = (fn, ms) => window.originalSetTimeout(fn, 0); // Force 0ms
     
-    // Re-inject speed hacks (in case page changed)
-    if (iterations % 10 === 0) {
-      await injectAnimationKiller(page);
-    }
+    // @ts-ignore
+    window.originalRAF = window.requestAnimationFrame;
+    // @ts-ignore
+    window.requestAnimationFrame = (cb) => window.originalRAF(() => cb(performance.now() + 1000)); // Future time
 
-    const level = await getCurrentLevel(page);
-    
-    if (level > lastLevel) {
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log(`✅ Level ${level} @ ${elapsed}s`);
-      metrics.logLevel(level, Date.now() - startTime, "success", iterations);
-      lastLevel = level;
+    // B. CSS Nuke (No layout shifts/anim)
+    const style = document.createElement('style');
+    style.innerHTML = `* { transition: none !important; animation: none !important; }`;
+    document.head.appendChild(style);
+
+    // C. The Solver Engine (Runs entirely in browser)
+    // @ts-ignore
+    window.solver = {
+      active: true,
+      level: 0,
+      history: [],
       
-      if (level >= 30) {
-        console.log("\n🏆 ALL 30 LEVELS COMPLETE!");
-        break;
-      }
-    }
+      start: function() {
+        console.log('Solver started');
+        this.loop();
+      },
 
-    await solveLevel(page);
+      loop: function() {
+        if (!this.active) return;
+
+        // 1. Identify "Next" / Actionable Elements
+        // Priority: Buttons, Inputs, Links
+        const candidates = Array.from(document.querySelectorAll('button, input[type="submit"], input[type="button"], a[href], div[role="button"]'))
+          .filter(el => {
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0' && !(el as any).disabled;
+          });
+
+        // 2. Filter for "Forward" intent
+        // (If multiple buttons exist, pick the one that looks like "Next", "Submit", "Go")
+        const keywords = ['start', 'next', 'continue', 'submit', 'verify', 'check', 'go', 'solve', 'level'];
+        
+        let target = candidates.find(el => {
+          const text = (el.textContent || (el as any).value || '').toLowerCase();
+          return keywords.some(k => text.includes(k));
+        });
+
+        // Fallback: Just click the first visible button if no keyword match
+        if (!target && candidates.length > 0) target = candidates[0];
+
+        if (target) {
+          // 3. EXECUTE (Native Event Dispatch for speed)
+          // Some React apps need full event chain
+          ['mousedown', 'mouseup', 'click'].forEach(eventType => {
+            const evt = new MouseEvent(eventType, { bubbles: true, cancelable: true, view: window });
+            target!.dispatchEvent(evt);
+          });
+          
+          this.history.push({ level: this.level, action: 'click', target: target.tagName });
+        }
+
+        // 4. Cheat/Hack: Look for exposed level variable
+        // @ts-ignore
+        if (window.level && window.level > this.level) {
+           this.level = window.level;
+           console.log(`Level advanced to ${this.level}`);
+        }
+
+        // Loop immediately (microtask)
+        // @ts-ignore
+        window.originalSetTimeout(() => this.loop(), 0);
+      }
+    };
+  });
+
+  console.log("🌍 Navigating...");
+  await page.goto('https://serene-frangipane-7fd25b.netlify.app', { waitUntil: 'domcontentloaded' });
+
+  // Start the internal engine
+  console.log("⚡ Injecting Solver...");
+  await page.evaluate(() => {
+    // @ts-ignore
+    if (window.solver) window.solver.start();
+  });
+
+  // Monitor progress from Node side
+  const startTime = Date.now();
+  let currentLevel = 0;
+
+  while (Date.now() - startTime < 10000) { // 10s timeout
+    const level = await page.evaluate(() => {
+      // @ts-ignore
+      return window.level || parseInt(document.body.innerText.match(/Level (\d+)/)?.[1] || "0");
+    });
+
+    if (level > currentLevel) {
+      console.log(`✅ Level ${level} reached (${Date.now() - startTime}ms)`);
+      currentLevel = level;
+      if (level === 30) break;
+    }
     
-    // Minimal yield to let browser process
-    await page.evaluate(() => new Promise(r => setTimeout(r, 0)));
+    await page.waitForTimeout(100);
   }
 
-  const totalTime = (Date.now() - startTime) / 1000;
-  console.log(`\n🏁 Finished: ${lastLevel}/30 levels in ${totalTime.toFixed(2)}s (${iterations} iterations)`);
-  
-  // Debug: show game state
-  const state = await getGameState(page);
-  console.log("Game state:", state);
-  
+  console.log(`🏁 Done. Reached Level ${currentLevel}`);
   metrics.endRun();
-  
-  await page.waitForTimeout(3000);
   await browser.close();
 }
 
