@@ -1,55 +1,43 @@
-
-import Database from 'better-sqlite3';
-
 export class MetricsCollector {
-  private db: Database.Database;
-  private startTime: number;
-  private runId: number = 0;
-
-  constructor() {
-    this.db = new Database('metrics.db');
-    this.startTime = Date.now();
-    this.init();
-  }
-
-  private init() {
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS runs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT,
-        total_time_ms INTEGER,
-        total_tokens INTEGER,
-        total_cost_usd REAL
-      );
-      CREATE TABLE IF NOT EXISTS levels (
-        run_id INTEGER,
-        level_index INTEGER,
-        duration_ms INTEGER,
-        status TEXT,
-        actions_count INTEGER,
-        FOREIGN KEY(run_id) REFERENCES runs(id)
-      );
-    `);
-  }
+  private startTime: number = 0;
+  private levels: { level: number; duration: number; status: string; actions: number }[] = [];
+  private totalTokens = 0;
+  private totalCost = 0;
 
   startRun() {
-    const info = this.db.prepare('INSERT INTO runs (timestamp) VALUES (?)').run(new Date().toISOString());
-    this.runId = info.lastInsertRowid as number;
-    return this.runId;
+    this.startTime = Date.now();
+    this.levels = [];
+    console.log("📊 Metrics tracking started");
   }
 
   logLevel(level: number, duration: number, status: string, actions: number) {
-    this.db.prepare(`
-      INSERT INTO levels (run_id, level_index, duration_ms, status, actions_count)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(this.runId, level, duration, status, actions);
+    this.levels.push({ level, duration, status, actions });
   }
 
-  endRun(tokens: number, cost: number) {
-    const duration = Date.now() - this.startTime;
-    this.db.prepare(`
-      UPDATE runs SET total_time_ms = ?, total_tokens = ?, total_cost_usd = ? WHERE id = ?
-    `).run(duration, tokens, cost, this.runId);
-    console.log(`Run ${this.runId} completed in ${duration}ms. Cost: $${cost.toFixed(4)}`);
+  addTokens(tokens: number, cost: number) {
+    this.totalTokens += tokens;
+    this.totalCost += cost;
+  }
+
+  endRun() {
+    const totalTime = Date.now() - this.startTime;
+    const successCount = this.levels.filter(l => l.status === "success").length;
+    
+    console.log("\n" + "=".repeat(50));
+    console.log("📊 RUN STATISTICS");
+    console.log("=".repeat(50));
+    console.log(`Total Time: ${(totalTime / 1000).toFixed(2)}s`);
+    console.log(`Levels Solved: ${successCount}/${this.levels.length}`);
+    console.log(`Total Tokens: ${this.totalTokens}`);
+    console.log(`Total Cost: $${this.totalCost.toFixed(4)}`);
+    console.log("=".repeat(50));
+    
+    // Per-level breakdown
+    this.levels.forEach(l => {
+      const icon = l.status === "success" ? "✅" : "❌";
+      console.log(`  ${icon} Level ${l.level}: ${l.duration}ms (${l.actions} actions)`);
+    });
+
+    return { totalTime, successCount, totalTokens: this.totalTokens, totalCost: this.totalCost };
   }
 }

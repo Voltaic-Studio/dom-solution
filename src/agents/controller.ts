@@ -1,5 +1,5 @@
 
-import { LLMClient } from '../core/llm';
+import { LLMClient } from '../core/llm.js';
 
 export class ControllerAgent {
   constructor(private llm: LLMClient) {}
@@ -25,7 +25,7 @@ export class ControllerAgent {
 
     try {
       // Default to Gemini Pro/Flash for speed/cost balance, configurable to Opus
-      const response = await this.llm.generateGemini(prompt, "gemini-1.5-flash"); 
+      const response = await this.llm.generate(prompt); 
       const cleanJson = response.replace(/```json/g, '').replace(/```/g, '').trim();
       return JSON.parse(cleanJson);
     } catch (e) {

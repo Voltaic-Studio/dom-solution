@@ -1,5 +1,5 @@
-
-import { chromium, Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
+import type { Browser, Page } from 'playwright';
 
 export class BrowserManager {
   private browser: Browser | null = null;

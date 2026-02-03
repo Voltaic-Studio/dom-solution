@@ -1,6 +1,6 @@
 
-import { LLMClient } from './llm';
-import { Page } from 'playwright';
+import { LLMClient } from '../core/llm.js';
+import type { Page } from 'playwright';
 
 export class ExplorerAgent {
   constructor(private llm: LLMClient, private page: Page) {}
@@ -18,7 +18,7 @@ export class ExplorerAgent {
     });
 
     const prompt = `Analyze these DOM elements and suggest the next logical action to solve a navigation puzzle:\n${JSON.stringify(elements)}`;
-    const analysis = await this.llm.generateGemini(prompt, "gemini-1.5-flash");
+    const analysis = await this.llm.generate(prompt);
     
     return analysis;
   }

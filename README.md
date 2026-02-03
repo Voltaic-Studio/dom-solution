@@ -2,7 +2,7 @@
 
 ## Setup
 1. `pnpm install`
-2. Create `.env` with `GEMINI_API_KEY` or `OPENAI_API_KEY`.
+2. Create `.env` with `GEMINI_API_KEY`.
 3. `pnpm start`
 
 ## Architecture
