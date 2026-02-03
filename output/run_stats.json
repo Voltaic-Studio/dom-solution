@@ -1,194 +1,223 @@
 {
-  "startTime": "2026-02-03T20:43:32.976Z",
-  "endTime": "2026-02-03T20:43:58.370Z",
-  "totalDurationSeconds": 25.39,
+  "startTime": "2026-02-03T20:51:32.312Z",
+  "endTime": "2026-02-03T20:52:00.138Z",
+  "totalDurationSeconds": 27.82,
   "stepsCompleted": 30,
   "totalSteps": 30,
   "success": true,
   "stepDetails": [
     {
       "step": 1,
-      "code": "VKYWDP",
-      "method": "deterministic",
-      "durationMs": 651
+      "code": "5Z5GLY",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 955
     },
     {
       "step": 2,
-      "code": "UR8EEW",
-      "method": "deterministic",
-      "durationMs": 660
+      "code": "3Y46Y5",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 700
     },
     {
       "step": 3,
-      "code": "KNAGR5",
-      "method": "deterministic",
-      "durationMs": 628
+      "code": "M5E2AY",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 689
     },
     {
       "step": 4,
-      "code": "HTFKUV",
-      "method": "deterministic",
-      "durationMs": 736
+      "code": "P94PFQ",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 719
     },
     {
       "step": 5,
-      "code": "QH25EC",
-      "method": "deterministic",
-      "durationMs": 647
+      "code": "JM6WSP",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 687
     },
     {
       "step": 6,
-      "code": "WK9UFF",
-      "method": "deterministic",
-      "durationMs": 616
+      "code": "QS5W4Q",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 809
     },
     {
       "step": 7,
-      "code": "NEQP4K",
-      "method": "deterministic",
-      "durationMs": 619
+      "code": "HT5XPE",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 786
     },
     {
       "step": 8,
-      "code": "67FLPZ",
-      "method": "deterministic",
-      "durationMs": 751
+      "code": "MVJTW3",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 879
     },
     {
       "step": 9,
-      "code": "79BD6U",
-      "method": "deterministic",
-      "durationMs": 669
+      "code": "J3PRQ2",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 700
     },
     {
       "step": 10,
-      "code": "CBXX6H",
-      "method": "deterministic",
-      "durationMs": 649
+      "code": "LUF8KY",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 717
     },
     {
       "step": 11,
-      "code": "XW4KWR",
-      "method": "deterministic",
-      "durationMs": 624
+      "code": "E5XYJ4",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 675
     },
     {
       "step": 12,
-      "code": "7W4B2X",
-      "method": "deterministic",
-      "durationMs": 630
+      "code": "EEZERC",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 711
     },
     {
       "step": 13,
-      "code": "4W2W7K",
-      "method": "deterministic",
-      "durationMs": 639
+      "code": "52JPJT",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 699
     },
     {
       "step": 14,
-      "code": "586GEJ",
-      "method": "deterministic",
-      "durationMs": 658
+      "code": "UL84AQ",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 717
     },
     {
       "step": 15,
-      "code": "8WM9EP",
-      "method": "deterministic",
-      "durationMs": 633
+      "code": "XVG8DM",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 700
     },
     {
       "step": 16,
-      "code": "DDCT78",
-      "method": "deterministic",
-      "durationMs": 628
+      "code": "U69PEP",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 705
     },
     {
       "step": 17,
-      "code": "HS4QA7",
-      "method": "deterministic",
-      "durationMs": 612
+      "code": "H66AQK",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 666
     },
     {
       "step": 18,
-      "code": "EDW6FY",
-      "method": "deterministic",
-      "durationMs": 612
+      "code": "GKJRYX",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 714
     },
     {
       "step": 19,
-      "code": "FRZEUG",
-      "method": "deterministic",
-      "durationMs": 622
+      "code": "AE55JK",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 679
     },
     {
       "step": 20,
-      "code": "72MKR3",
-      "method": "deterministic",
-      "durationMs": 618
+      "code": "H3GREL",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 689
     },
     {
       "step": 21,
-      "code": "T5BK7H",
-      "method": "deterministic",
-      "durationMs": 617
+      "code": "ZS7KG9",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 723
     },
     {
       "step": 22,
-      "code": "QXEGLD",
-      "method": "deterministic",
-      "durationMs": 633
+      "code": "JFS8PW",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 693
     },
     {
       "step": 23,
-      "code": "GTS3TL",
-      "method": "deterministic",
-      "durationMs": 622
+      "code": "YNJDU8",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 668
     },
     {
       "step": 24,
-      "code": "4S76C9",
-      "method": "deterministic",
-      "durationMs": 624
+      "code": "LSG2V7",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 736
     },
     {
       "step": 25,
-      "code": "LYGLWW",
-      "method": "deterministic",
-      "durationMs": 622
+      "code": "TSQXYD",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 690
     },
     {
       "step": 26,
-      "code": "NK9FWC",
-      "method": "deterministic",
-      "durationMs": 624
+      "code": "KN4NWW",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 686
     },
     {
       "step": 27,
-      "code": "A37AXS",
-      "method": "deterministic",
-      "durationMs": 622
+      "code": "DYSTUM",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 734
     },
     {
       "step": 28,
-      "code": "JJTK56",
-      "method": "deterministic",
-      "durationMs": 616
+      "code": "3VG5KQ",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 683
     },
     {
       "step": 29,
-      "code": "M74MMN",
-      "method": "deterministic",
-      "durationMs": 617
+      "code": "TK4P5F",
+      "method": "llm_guided",
+      "llmAction": "ENTER_CODE",
+      "durationMs": 671
     },
     {
       "step": 30,
       "method": "bypass",
-      "durationMs": 573
+      "durationMs": 567
     }
   ],
   "metrics": {
     "tokenUsage": 0,
     "tokenCost": 0,
-    "apiCalls": 0
+    "apiCalls": 30
   }
 }

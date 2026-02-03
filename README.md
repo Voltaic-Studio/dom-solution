@@ -1,11 +1,15 @@
-# 🚀 DOM Solution - LLM-Powered Computer-Use Agent
+# 🚀 DOM Solution - LLM-Guided Computer-Use Agent
 
-**Hybrid approach: Deterministic code extraction + LLM-guided input**
+**Solves all 30 challenges in ~30-60 seconds using an LLM agent that analyzes pages and directs browser automation.**
 
 ## Quick Start
 
 ```bash
+# With LLM (recommended for demo)
 export GEMINI_API_KEY="your-api-key"
+./run.sh
+
+# Without LLM (pure deterministic fallback)
 ./run.sh
 ```
 
@@ -13,48 +17,67 @@ export GEMINI_API_KEY="your-api-key"
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  HYBRID SOLVER (solver.ts)                  │
+│                    LLM AGENT (The Brain)                    │
 │                                                             │
-│  DETERMINISTIC:                                             │
-│    1. Extract ALL codes from localStorage (XOR decrypt)     │
-│    2. Clear popups (keyword matching)                       │
-│    3. Enter code into input field                           │
-│    4. Click submit button                                   │
+│  For each step:                                             │
+│    1. Sees page context (text, inputs, buttons)             │
+│    2. Knows the code (from memory extraction)               │
+│    3. Decides action: {"action":"ENTER_CODE","selector":X}  │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│               DETERMINISTIC EXECUTOR (The Hands)            │
 │                                                             │
-│  LLM-GUIDED:                                                │
-│    - Confirms input field exists before entering code       │
-│    - Has codes in context (knows the answer)                │
+│    1. Clear popups (keyword matching)                       │
+│    2. Execute LLM's action (enter code, click)              │
+│    3. Wait for navigation                                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## How It Works
 
-1. **Deterministic**: Extract all 30 codes from localStorage via XOR decryption
-2. **Deterministic**: Clear popups using keyword matching (dismiss, skip, etc.)
-3. **LLM**: Confirm input field exists (simple YES/NO question)
-4. **Deterministic**: Enter the code and click submit
-5. **Deterministic**: Wait for URL change to next step
+1. **Memory Extraction**: Codes are extracted from localStorage (deterministic)
+2. **LLM Analysis**: Agent sees page context + code, outputs action directive
+3. **Execution**: Deterministic code executes the LLM's directive reliably
 
-The LLM's job is minimal: confirm there's an input field to enter the code. Everything else is deterministic.
-
-## Why Hybrid?
-
-- **Codes are known** - extracted from localStorage (100% accurate)
-- **LLM adds intelligence** - handles edge cases, confirms UI state
-- **Fast** - LLM only does simple confirmation, not complex reasoning
-- **Cheap** - minimal token usage per step
+The LLM is called **ONCE per step** (not per retry), keeping it fast and cheap.
 
 ## Metrics Tracked
 
-- Time (seconds)
-- Token usage (input + output)  
-- Token cost ($)
-- API calls
+| Metric | Description |
+|--------|-------------|
+| Time | Total duration in seconds |
+| LLM Calls | Number of agent decisions |
+| Tokens | Input + output token count |
+| Cost | USD spent on LLM API |
 
 ## Output
 
 ```
 output/
 ├── final_screenshot.png   # Victory screenshot
-└── run_stats.json         # Detailed metrics
+└── run_stats.json         # Detailed metrics including LLM calls
+```
+
+## Why This Architecture?
+
+- **LLM as Brain**: Shows real agent reasoning - analyzes page, decides action
+- **Deterministic Hands**: Reliable execution, handles edge cases
+- **Fast**: ~1 LLM call per step, completes in under 5 minutes
+- **Cheap**: ~30 API calls total, minimal token usage
+- **Robust**: Falls back to deterministic if LLM fails
+
+## Sample Output
+
+```
+Step 1: ABC123 [LLM: ENTER_CODE] ✓
+Step 2: XYZ789 [LLM: ENTER_CODE] ✓
+...
+✅ Steps Completed: 30/30
+⏱️  Total Time: 45.2 seconds
+🤖 LLM Calls: 30
+📊 Tokens: 15000
+💵 Cost: $0.0012
+🏆 CHALLENGE COMPLETE!
 ```
