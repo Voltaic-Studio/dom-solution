@@ -2,17 +2,24 @@
   "name": "dom-solution",
   "version": "2.0.0",
   "type": "module",
-  "description": "LLM-powered computer-use agent for Browser Navigation Challenge",
+  "description": "MCP Tool - Browser Challenge Solver Agent",
+  "bin": {
+    "browser-challenge-solver": "./dist/mcp-server.js"
+  },
   "scripts": {
     "postinstall": "playwright install chromium",
-    "start": "npx tsx src/solver.ts"
+    "build": "tsc",
+    "start": "npx tsx src/solver.ts",
+    "mcp": "npx tsx src/mcp-server.ts",
+    "test-tool": "npx tsx src/test-tool.ts"
   },
   "dependencies": {
-    "playwright": "^1.58.1",
-    "tsx": "^4.19.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "playwright": "^1.58.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
 }

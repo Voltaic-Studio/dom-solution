@@ -2,10 +2,20 @@
 set -e
 cd "$(dirname "$0")"
 
-# API key is OPTIONAL - LLM only used as fallback
-if [ -z "$GEMINI_API_KEY" ]; then
-  echo "ℹ️  No GEMINI_API_KEY set - running in pure deterministic mode"
+echo "🚀 Browser Challenge Solver - MCP Tool"
+echo ""
+
+if [ -z "$1" ]; then
+  echo "Usage: ./run.sh <URL>"
+  echo ""
+  echo "Example:"
+  echo "  ./run.sh https://example.com/challenge"
+  echo ""
+  echo "Other commands:"
+  echo "  pnpm test-tool <URL>  - Test the solver"
+  echo "  pnpm mcp              - Run as MCP server"
+  exit 1
 fi
 
 pnpm install
-pnpm start
+pnpm test-tool "$1"

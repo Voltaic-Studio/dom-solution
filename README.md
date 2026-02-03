@@ -1,83 +1,147 @@
-# 🚀 DOM Solution - LLM-Guided Computer-Use Agent
+# 🚀 Browser Challenge Solver - MCP Tool
 
-**Solves all 30 challenges in ~30-60 seconds using an LLM agent that analyzes pages and directs browser automation.**
+**An MCP tool that any LLM agent can call to solve browser navigation challenges.**
+
+## The Concept
+
+Instead of having the LLM analyze each page (slow, expensive), the LLM just **decides to use the right tool**:
+
+```
+User: "Hey solve this browser puzzle: https://serene-frangipane-7fd25b.netlify.app/"
+     ↓
+LLM Agent thinks:
+  → User wants to solve a browser puzzle
+  → They provided a URL
+  → I have tool: solve_browser_challenge
+  → It requires a URL parameter
+     ↓
+calls: solve_browser_challenge({ url: "https://serene-frangipane-7fd25b.netlify.app/" })
+     ↓
+Tool runs (30 steps in 25 seconds, deterministic)
+     ↓
+LLM Agent: "Done! Completed 30/30 steps in 25 seconds."
+```
+
+This demonstrates **real agent capability**:
+1. **Understanding intent** - knows user wants to solve a puzzle
+2. **Extracting parameters** - pulls the URL from user's message
+3. **Tool selection** - chooses the right tool
+4. **Parameter passing** - correctly calls tool with extracted URL
 
 ## Quick Start
 
-```bash
-# With LLM (recommended for demo)
-export GEMINI_API_KEY="your-api-key"
-./run.sh
+### 1. Test the Tool Directly
 
-# Without LLM (pure deterministic fallback)
-./run.sh
+```bash
+cd dom-solution
+pnpm install
+pnpm test-tool <URL>
 ```
+
+Example:
+```bash
+pnpm test-tool https://serene-frangipane-7fd25b.netlify.app/
+```
+
+This runs the solver and shows what an LLM agent would receive as the tool response.
+
+### 2. Run as MCP Server (for Claude Desktop)
+
+```bash
+pnpm mcp
+```
+
+### 3. Add to Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "browser-challenge-solver": {
+      "command": "npx",
+      "args": ["tsx", "/full/path/to/dom-solution/src/mcp-server.ts"]
+    }
+  }
+}
+```
+
+Then restart Claude Desktop. You can now ask Claude:
+> "Solve the browser navigation challenge at https://serene-frangipane-7fd25b.netlify.app/"
+
+Claude will use the tool and return the results!
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    LLM AGENT (The Brain)                    │
+│                    LLM AGENT (Claude)                       │
 │                                                             │
-│  For each step:                                             │
-│    1. Sees page context (text, inputs, buttons)             │
-│    2. Knows the code (from memory extraction)               │
-│    3. Decides action: {"action":"ENTER_CODE","selector":X}  │
+│  "I need to solve a browser challenge.                      │
+│   Let me use the solve_browser_challenge tool."             │
+│                                                             │
+│  → calls tool with { url: "..." }                           │
+│  ← receives { success: true, steps: 30, time: "25s" }       │
 └─────────────────────────────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│               DETERMINISTIC EXECUTOR (The Hands)            │
+│              MCP TOOL: solve_browser_challenge              │
 │                                                             │
-│    1. Clear popups (keyword matching)                       │
-│    2. Execute LLM's action (enter code, click)              │
-│    3. Wait for navigation                                   │
+│  Deterministic solver that:                                 │
+│  1. Launches browser                                        │
+│  2. Extracts codes from memory                              │
+│  3. Solves all 30 steps                                     │
+│  4. Returns structured result                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## How It Works
+## Tool Definition
 
-1. **Memory Extraction**: Codes are extracted from localStorage (deterministic)
-2. **LLM Analysis**: Agent sees page context + code, outputs action directive
-3. **Execution**: Deterministic code executes the LLM's directive reliably
-
-The LLM is called **ONCE per step** (not per retry), keeping it fast and cheap.
-
-## Metrics Tracked
-
-| Metric | Description |
-|--------|-------------|
-| Time | Total duration in seconds |
-| LLM Calls | Number of agent decisions |
-| Tokens | Input + output token count |
-| Cost | USD spent on LLM API |
-
-## Output
-
-```
-output/
-├── final_screenshot.png   # Victory screenshot
-└── run_stats.json         # Detailed metrics including LLM calls
+```typescript
+{
+  name: "solve_browser_challenge",
+  description: "Solves browser navigation puzzles by automating the browser",
+  inputSchema: {
+    url: string,     // Challenge URL (optional)
+    headless: boolean // Run without visible browser (optional)
+  }
+}
 ```
 
-## Why This Architecture?
+## Tool Response
 
-- **LLM as Brain**: Shows real agent reasoning - analyzes page, decides action
-- **Deterministic Hands**: Reliable execution, handles edge cases
-- **Fast**: ~1 LLM call per step, completes in under 5 minutes
-- **Cheap**: ~30 API calls total, minimal token usage
-- **Robust**: Falls back to deterministic if LLM fails
+```json
+{
+  "success": true,
+  "stepsCompleted": 30,
+  "totalSteps": 30,
+  "durationSeconds": 25.4,
+  "message": "Challenge completed! All 30 steps solved in 25.4 seconds.",
+  "stepDetails": [
+    { "step": 1, "code": "ABC123", "success": true },
+    { "step": 2, "code": "XYZ789", "success": true },
+    ...
+  ]
+}
+```
 
-## Sample Output
+## Why This Approach?
+
+| Aspect | LLM-per-step | MCP Tool |
+|--------|--------------|----------|
+| LLM Calls | 30 | 1 |
+| Token Cost | ~$0.01+ | ~$0.0001 |
+| Time | 60+ sec | 25 sec |
+| Rate Limits | Problems | None |
+| **Agent Demo** | LLM doing grunt work | LLM choosing right tool |
+
+## Files
 
 ```
-Step 1: ABC123 [LLM: ENTER_CODE] ✓
-Step 2: XYZ789 [LLM: ENTER_CODE] ✓
-...
-✅ Steps Completed: 30/30
-⏱️  Total Time: 45.2 seconds
-🤖 LLM Calls: 30
-📊 Tokens: 15000
-💵 Cost: $0.0012
-🏆 CHALLENGE COMPLETE!
+src/
+├── tool.ts          # Core solver (the tool implementation)
+├── mcp-server.ts    # MCP server exposing the tool
+├── test-tool.ts     # Test script
+└── solver.ts        # Original standalone solver
 ```
