@@ -47,12 +47,9 @@ export class BrowserManager {
     
     const screenshot = await this.page.screenshot({ type: 'jpeg', quality: 70 });
     
-    // Get structured DOM info for grounding
     const { dom, interactiveElements } = await this.page.evaluate(() => {
-      // Get all interactive elements with their positions
       const interactive: string[] = [];
       
-      // Buttons
       document.querySelectorAll('button').forEach((el, i) => {
         const text = el.textContent?.trim().slice(0, 50) || '';
         const rect = el.getBoundingClientRect();
@@ -61,7 +58,6 @@ export class BrowserManager {
         }
       });
       
-      // Inputs
       document.querySelectorAll('input:not([type="hidden"])').forEach((el, i) => {
         const input = el as HTMLInputElement;
         const rect = el.getBoundingClientRect();
@@ -70,7 +66,6 @@ export class BrowserManager {
         }
       });
       
-      // Links
       document.querySelectorAll('a[href]').forEach((el, i) => {
         const text = el.textContent?.trim().slice(0, 30) || '';
         const rect = el.getBoundingClientRect();
@@ -79,24 +74,14 @@ export class BrowserManager {
         }
       });
 
-      // Get visible text (simplified)
       const visibleText = document.body.innerText.slice(0, 2000);
       
-      return {
-        dom: visibleText,
-        interactiveElements: interactive.join('\n')
-      };
+      return { dom: visibleText, interactiveElements: interactive.join('\n') };
     });
 
-    return {
-      screenshot,
-      dom,
-      url: this.page.url(),
-      interactiveElements
-    };
+    return { screenshot, dom, url: this.page.url(), interactiveElements };
   }
 
-  // Execute actions
   async click(selector: string): Promise<boolean> {
     if (!this.page) return false;
     try {
@@ -109,18 +94,38 @@ export class BrowserManager {
 
   async clickText(text: string): Promise<boolean> {
     if (!this.page) return false;
-    try {
-      await this.page.click(`text="${text}"`, { timeout: 3000 });
-      return true;
-    } catch {
+    
+    // Extract key words from description like "START button" -> ["START", "button"]
+    const words = text.split(/\s+/).filter(w => w.length > 1);
+    const mainWord = words[0]?.toUpperCase() || text;
+    
+    // Try multiple strategies
+    const attempts = [
+      // Exact text match
+      `text="${text}"`,
+      // Partial text match
+      `text=${text}`,
+      // Button with text
+      `button:has-text("${text}")`,
+      // Main word only (e.g., "START" from "START button")
+      `text="${mainWord}"`,
+      `text=${mainWord}`,
+      `button:has-text("${mainWord}")`,
+      // Case insensitive
+      `text=${text.toLowerCase()}`,
+      `text=${mainWord.toLowerCase()}`,
+    ];
+
+    for (const selector of attempts) {
       try {
-        // Fallback: partial match
-        await this.page.click(`text=${text}`, { timeout: 2000 });
+        await this.page.click(selector, { timeout: 1500 });
         return true;
       } catch {
-        return false;
+        continue;
       }
     }
+
+    return false;
   }
 
   async type(selector: string, text: string): Promise<boolean> {
@@ -130,7 +135,6 @@ export class BrowserManager {
       return true;
     } catch {
       try {
-        // Fallback: click and type
         await this.page.click(selector, { timeout: 2000 });
         await this.page.keyboard.type(text);
         return true;
@@ -143,13 +147,22 @@ export class BrowserManager {
   async typeIntoVisible(text: string): Promise<boolean> {
     if (!this.page) return false;
     try {
-      // Find first visible input
-      const input = await this.page.$('input:visible:not([type="hidden"])');
-      if (input) {
-        await input.fill(text);
+      // Find first visible input and fill it
+      const filled = await this.page.evaluate((t) => {
+        const input = document.querySelector('input:not([type="hidden"])') as HTMLInputElement;
+        if (!input) return false;
+        
+        // Use native setter to trigger React
+        const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+        if (setter) setter.call(input, t);
+        else input.value = t;
+        
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
         return true;
-      }
-      return false;
+      }, text);
+      
+      return filled;
     } catch {
       return false;
     }

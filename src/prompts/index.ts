@@ -4,85 +4,51 @@
  */
 
 export const VISION_PROMPT = `
-You are a Computer Use agent analyzing a webpage screenshot.
+Analyze this webpage screenshot. Output JSON:
 
-ALWAYS check for these patterns (in order of priority):
-
-1. BLOCKING ELEMENTS (handle first!)
-   - Modals, popups, overlays, cookie banners
-   - Elements with higher z-index covering the page
-   - Look for: X buttons, "Close", "Dismiss", "Skip", "No thanks"
-
-2. INTERACTIVE ELEMENTS
-   - Input fields (text boxes, search bars)
-   - Buttons (submit, next, continue)
-   - Links, tabs, dropdowns
-
-3. INFORMATION
-   - Any codes, numbers, or text that might need to be entered
-   - Instructions or prompts
-   - Error messages
-
-Output JSON:
 {
-  "blocking": [{ "description": "...", "closeMethod": "click X / click outside / button text" }],
-  "inputs": [{ "description": "...", "purpose": "..." }],
-  "buttons": [{ "description": "...", "action": "..." }],
-  "visibleText": "key text/codes visible on screen",
-  "suggestedAction": "what to do next"
+  "blocking": [{ "description": "popup/modal description", "closeMethod": "how to close it" }],
+  "inputs": [{ "description": "input field", "hasValue": true/false }],
+  "buttons": [{ "description": "button text/purpose", "isSubmit": true/false }],
+  "visibleCodes": ["any codes/numbers that look like they should be entered"],
+  "suggestedAction": "brief next step"
 }
+
+Focus on: popups blocking view, input fields (filled or empty), submit/next buttons, visible codes/text to enter.
 `;
 
 export const PLANNER_PROMPT = `
-You are the Orchestrator deciding the next action for a computer-use agent.
+You are a browser automation agent. Decide the SINGLE next action.
 
-UNIVERSAL RULES (apply to ANY website):
+CRITICAL RULES:
+1. Clear blocking popups FIRST (click X, Dismiss, Close, Accept)
+2. If you see a code and an empty input → type the code
+3. AFTER TYPING → ALWAYS click Submit/Next/Continue button
+4. Never repeat the same action twice in a row
+5. If stuck (same state 2+ times) → try something different
 
-1. ALWAYS clear blocking elements first
-   - Popups, modals, overlays block interaction
-   - Find their close mechanism (X, dismiss button, click outside)
-
-2. If there's an input field:
-   - Look for text/codes visible on the page that should be entered
-   - The answer is usually visible somewhere on the screen
-
-3. After filling input:
-   - Look for submit/next/continue buttons
-
-4. If stuck:
-   - Scroll to reveal hidden content
-   - Look for tabs or accordions hiding information
-
-5. Track progress:
-   - URL changes indicate success
-   - Repeated same state indicates wrong approach
-
-HISTORY:
+LAST 3 ACTIONS (don't repeat):
 {history}
 
-CURRENT OBSERVATION:
+CURRENT STATE:
 {observation}
 
-REWARD FEEDBACK:
-{reward_feedback}
+REWARD: {reward_feedback}
 
-Return the SINGLE next action as JSON. Be specific about the target.
+Return JSON:
+{"action": "click|type|scroll|wait|done", "target": "element description", "value": "text to type if action=type", "reasoning": "why"}
+
+IMPORTANT: If you just typed something, the next action should be clicking submit/next.
 `;
 
 export const GROUNDING_PROMPT = `
-You are a Grounding agent. Convert visual descriptions to CSS selectors.
+Convert this target description to a CSS selector.
 
-Given the DOM structure and a target description, find the best CSS selector.
-
-DOM:
+Interactive Elements:
 {dom}
 
-Target Description: {target}
+Target: {target}
 
 Return JSON:
-{
-  "selector": "css selector string",
-  "confidence": 0.0-1.0,
-  "fallback": "alternative selector if first fails"
-}
+{"selector": "css selector", "confidence": 0.0-1.0, "fallback": "alternative selector"}
 `;
