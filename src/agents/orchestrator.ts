@@ -37,7 +37,7 @@ export class AgentOrchestrator {
 
       // 3. Planning (Reasoning)
       const { object: plan } = await generateObject({
-        model: models.fast, // Switch to reasoning if needed
+        model: models.reasoning,
         schema: ActionSchema,
         prompt: PLANNER_PROMPT
           .replace('{history}', this.history.join('\n'))

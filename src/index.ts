@@ -8,7 +8,8 @@ export async function solveWithAgent(url: string) {
 }
 
 // Allow direct execution
-if (require.main === module) {
+import { fileURLToPath } from 'url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const url = process.argv[2] || 'https://serene-frangipane-7fd25b.netlify.app';
   solveWithAgent(url).catch(console.error);
 }

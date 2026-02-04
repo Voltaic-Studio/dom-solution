@@ -11,10 +11,10 @@ const google = createGoogleGenerativeAI({
 // Define model tiers
 export const models = {
   // Fast Vision (for seeing the screen)
-  vision: google('gemini-2.0-flash-exp'), 
+  vision: google('gemini-2.0-flash'), 
   
   // Reasoning (for planning the next move)
-  reasoning: google('gemini-2.0-flash-thinking-exp'), // or gemini-pro if thinking not avail
+  reasoning: google('gemini-2.0-flash'),
   
   // Cheap/Fast (for DOM parsing)
   fast: google('gemini-1.5-flash'),
