@@ -1,53 +1,37 @@
 /**
- * Test the solver tool directly (without MCP)
- * 
- * Run: pnpm test-tool
- * Or:  pnpm test-tool https://some-other-challenge.com/
+ * Test the agent directly (simulates MCP tool call)
  */
 
-import { solveBrowserChallenge } from './tool.js';
+import { runAgent } from './index.js';
 
 async function main() {
-  // Get URL from command line - REQUIRED
   const url = process.argv[2];
-  
+  const goal = process.argv[3] || 'complete the challenge';
+
   if (!url) {
-    console.error('❌ URL is required!');
-    console.error('Usage: pnpm test-tool <URL>');
-    console.error('Example: pnpm test-tool https://example.com/challenge');
+    console.log('Usage: pnpm test <url> [goal]');
+    console.log('');
+    console.log('Example:');
+    console.log('  pnpm test https://example.com/challenge');
+    console.log('  pnpm test https://example.com/challenge "fill out the form"');
     process.exit(1);
   }
-  
-  console.log('🚀 Browser Challenge Solver - MCP Tool Test\n');
-  console.log('─'.repeat(60));
-  console.log('SIMULATING LLM AGENT BEHAVIOR:\n');
-  console.log('User: "Hey solve this browser puzzle: ' + url + '"\n');
-  console.log('LLM Agent thinks:');
-  console.log('  → User wants to solve a browser puzzle');
-  console.log('  → They provided URL: ' + url);
-  console.log('  → I have tool: solve_browser_challenge');
-  console.log('  → Calling tool with { url: "' + url + '" }\n');
-  console.log('─'.repeat(60));
-  console.log('TOOL EXECUTING...\n');
-  
-  const result = await solveBrowserChallenge(url, false);
 
-  console.log('\n' + '─'.repeat(60));
-  console.log('TOOL RESPONSE (returned to LLM agent):\n');
-  console.log(JSON.stringify(result, null, 2));
-  
-  console.log('\n' + '─'.repeat(60));
-  console.log('LLM AGENT RESPONSE TO USER:\n');
-  if (result.success) {
-    console.log(`"I've completed the browser challenge! 🏆`);
-    console.log(` - Solved all ${result.stepsCompleted} steps`);
-    console.log(` - Total time: ${result.durationSeconds} seconds`);
-    console.log(` - Screenshot saved to output/final_screenshot.png"`);
-  } else {
-    console.log(`"I attempted the challenge but encountered an issue:`);
-    console.log(` ${result.message}"`);
-  }
-  console.log('─'.repeat(60));
+  console.log('🧪 Testing Computer Use Agent\n');
+  console.log(`URL: ${url}`);
+  console.log(`Goal: ${goal}\n`);
+
+  const result = await runAgent(url, goal);
+
+  console.log('\n━━━ Tool Response (as LLM would see) ━━━\n');
+  console.log(JSON.stringify({
+    success: result.success,
+    stepsCompleted: result.stepsCompleted,
+    totalReward: result.totalReward,
+    durationSeconds: result.duration,
+    finalUrl: result.finalUrl,
+    error: result.error
+  }, null, 2));
 }
 
 main().catch(console.error);

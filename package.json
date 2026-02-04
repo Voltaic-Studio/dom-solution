@@ -1,21 +1,23 @@
 {
   "name": "dom-solution",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "type": "module",
-  "description": "MCP Tool - Browser Challenge Solver Agent",
+  "description": "MCP Tool - General Computer Use Agent",
   "bin": {
-    "browser-challenge-solver": "./dist/mcp-server.js"
+    "computer-use-agent": "./dist/mcp-server.js"
   },
   "scripts": {
     "postinstall": "playwright install chromium",
-    "build": "tsc",
-    "start": "npx tsx src/solver.ts",
+    "start": "npx tsx src/index.ts",
     "mcp": "npx tsx src/mcp-server.ts",
-    "test-tool": "npx tsx src/test-tool.ts"
+    "test": "npx tsx src/test-tool.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.0.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "playwright": "^1.58.1"
+    "ai": "^4.0.0",
+    "playwright": "^1.58.1",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

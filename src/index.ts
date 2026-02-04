@@ -1,14 +1,35 @@
+/**
+ * Computer Use Agent - Entry Point
+ */
 
-import { AgentOrchestrator } from './agents/orchestrator.js';
+import { AgentOrchestrator, AgentResult } from './agents/orchestrator.js';
+import { fileURLToPath } from 'url';
 
-// Entry point for the MCP Tool wrapper (or direct run)
-export async function solveWithAgent(url: string) {
+export async function runAgent(url: string, goal?: string): Promise<AgentResult> {
   const agent = new AgentOrchestrator();
-  await agent.run(url);
+  return agent.run(url, goal);
 }
 
-// Allow direct execution
-if (require.main === module) {
-  const url = process.argv[2] || 'https://serene-frangipane-7fd25b.netlify.app';
-  solveWithAgent(url).catch(console.error);
+// Only run CLI if this file is executed directly (not imported)
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url).includes(process.argv[1].replace(/\.ts$/, ''));
+
+if (isMainModule) {
+  const args = process.argv.slice(2);
+  if (args.length > 0) {
+    const url = args[0];
+    const goal = args[1] || 'complete the challenge';
+    
+    console.log('🚀 Computer Use Agent\n');
+    
+    runAgent(url, goal)
+      .then(result => {
+        console.log('\n📋 Final Result:');
+        console.log(JSON.stringify(result, null, 2));
+        process.exit(result.success ? 0 : 1);
+      })
+      .catch(err => {
+        console.error('Fatal error:', err);
+        process.exit(1);
+      });
+  }
 }
