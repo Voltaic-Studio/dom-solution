@@ -1,27 +1,63 @@
+
 import os
 import asyncio
-from browser_use import Agent, Browser, ChatOpenAI
+from langchain_openai import ChatOpenAI
+from browser_use import Agent, Browser
+from playwright.async_api import async_playwright
+
+# Import our custom optimization layer
+# We need to manually initialize Playwright here to pass the page to our controller
+from src.controller import get_controller
 
 async def main():
-    # Use GPT-4o via OpenRouter - has proper structured output support
-    # Note: Claude via OpenRouter has broken structured outputs (wrong field names)
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("Missing OPENROUTER_API_KEY")
+
+    # 1. Initialize Model (OpenRouter)
     llm = ChatOpenAI(
-        model="openai/gpt-4o",  # GPT-4o works properly with structured outputs via OpenRouter
-        api_key=os.getenv("OPENROUTER_API_KEY"),
+        model="openai/gpt-4o", 
+        api_key=api_key,
         base_url="https://openrouter.ai/api/v1",
+        temperature=0, # Deterministic for speed
     )
     
-    browser = Browser()
-    
-    agent = Agent(
-        task="Solve the 30-step browser challenge at https://serene-frangipane-7fd25b.netlify.app. Start by clicking 'START'. For each step: 1. Close any popups/overlays first. 2. Follow instructions (enter code, select option, scroll). 3. Click Next/Submit. If a code is visible (e.g. X9K2J1), type it into the input.",
-        llm=llm,
-        browser=browser,
-        use_vision=True,
+    # 2. Initialize Browser (Standard)
+    # We use a persistent context to be safe
+    browser = Browser(
+        config={
+            "headless": False, 
+            "disable_security": True
+        }
     )
     
-    result = await agent.run()
-    print(result)
+    # 3. Custom Controller Hook
+    # We want to inject our Semantic Locator into the agent
+    async with await browser.new_context() as context:
+        page = await context.get_current_page()
+        controller = get_controller(page)
+
+        agent = Agent(
+            task="""
+            Solve the browser challenge at https://serene-frangipane-7fd25b.netlify.app. 
+            
+            STRATEGY:
+            1. Use 'fast_click' for obvious buttons like "Start", "Next", "Submit", "Close".
+            2. Use 'fast_fill' for code inputs if you see the code.
+            3. Only use standard VLM actions if fast actions fail.
+            4. Goal: Speed.
+            """,
+            llm=llm,
+            browser_context=context,
+            controller=controller, # Inject our Fast Hands
+            use_vision=True,
+        )
+        
+        print("🚀 Agent Starting (Hybrid Architecture)")
+        result = await agent.run()
+        print(result)
+
+    await browser.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
