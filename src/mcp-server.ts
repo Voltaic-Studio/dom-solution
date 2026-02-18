@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 /**
- * MCP Server - Browser Challenge Solver Tool
+ * MCP Server - Computer Use Agent Tool
  * 
- * Exposes the solver as an MCP tool that any LLM agent can call.
- * 
- * Tool: solve_browser_challenge
- * Description: Solves browser navigation puzzles by automating form filling
+ * Exposes a general-purpose computer use agent as an MCP tool.
+ * Can navigate and solve any website challenge.
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -14,12 +12,12 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { solveBrowserChallenge } from './tool.js';
+import { runAgent } from './index.js';
 
 const server = new Server(
   {
-    name: 'browser-challenge-solver',
-    version: '1.0.0',
+    name: 'computer-use-agent',
+    version: '3.0.0',
   },
   {
     capabilities: {
@@ -34,31 +32,32 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'solve_browser_challenge',
-        description: `Solves browser navigation puzzle challenges by automating the browser.
+        description: `A computer-use agent that can navigate and solve web challenges.
 
-When a user asks you to solve a browser puzzle/challenge and provides a URL, use this tool.
-
-This tool:
+This agent:
 1. Opens the provided URL in a browser
-2. Analyzes the puzzle structure
-3. Automatically solves all steps (form filling, navigation, etc.)
-4. Returns completion status and statistics
+2. Uses vision to analyze the page
+3. Plans and executes actions (click, type, scroll)
+4. Learns from rewards (URL changes, content changes)
+5. Continues until the goal is reached or timeout
 
-Example user requests this tool can handle:
-- "Solve this browser puzzle: https://example.com/challenge"
-- "Complete the navigation challenge at [URL]"
-- "Automate solving this browser test: [URL]"`,
+Use this when asked to:
+- Solve a browser puzzle/challenge
+- Navigate through a multi-step web process
+- Complete forms or sequences on a website
+- Automate browser-based tasks
+
+The agent is general-purpose - not hardcoded to any specific website.`,
         inputSchema: {
           type: 'object',
           properties: {
             url: {
               type: 'string',
-              description: 'The URL of the browser puzzle/challenge to solve. Extract this from the user request.'
+              description: 'The URL to navigate to and solve'
             },
-            headless: {
-              type: 'boolean',
-              description: 'Run browser in headless mode (no visible window). Default: false',
-              default: false
+            goal: {
+              type: 'string',
+              description: 'Optional: describe what success looks like (default: "complete the challenge")'
             }
           },
           required: ['url']
@@ -74,31 +73,48 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === 'solve_browser_challenge') {
     const url = args?.url as string;
-    const headless = (args?.headless as boolean) || false;
+    const goal = (args?.goal as string) || 'complete the challenge';
 
     if (!url) {
       return {
-        content: [{ type: 'text', text: 'Error: URL is required. Please provide the challenge URL.' }],
+        content: [{ type: 'text', text: 'Error: URL is required' }],
         isError: true
       };
     }
 
-    console.error(`[MCP] Agent called solve_browser_challenge`);
-    console.error(`[MCP] URL: ${url}`);
-    console.error(`[MCP] Headless: ${headless}`);
-    
-    const result = await solveBrowserChallenge(url, headless);
+    console.error(`[MCP] Agent called with URL: ${url}`);
+    console.error(`[MCP] Goal: ${goal}`);
 
-    console.error(`[MCP] Result: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.message}`);
+    try {
+      const result = await runAgent(url, goal);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2)
-        }
-      ]
-    };
+      console.error(`[MCP] Result: ${result.success ? 'SUCCESS' : 'FAILED'}`);
+      console.error(`[MCP] Steps: ${result.stepsCompleted}, Reward: ${result.totalReward.toFixed(2)}`);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: result.success,
+              stepsCompleted: result.stepsCompleted,
+              totalReward: result.totalReward,
+              durationSeconds: result.duration,
+              finalUrl: result.finalUrl,
+              message: result.success 
+                ? `Challenge completed in ${result.stepsCompleted} steps (${result.duration.toFixed(1)}s)`
+                : `Stopped after ${result.stepsCompleted} steps. Final URL: ${result.finalUrl}`,
+              error: result.error
+            }, null, 2)
+          }
+        ]
+      };
+    } catch (error) {
+      return {
+        content: [{ type: 'text', text: `Agent error: ${error}` }],
+        isError: true
+      };
+    }
   }
 
   return {
@@ -107,11 +123,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   };
 });
 
-// Start the server
+// Start
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error('[MCP] Browser Challenge Solver server running');
+  console.error('[MCP] Computer Use Agent server running');
 }
 
 main().catch(console.error);
